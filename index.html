@@ -98,7 +98,7 @@
                     </div>
                     <div class="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 mb-4">
                         <button id="pauseBtn" class="bg-yellow-600 text-white px-3 py-2 rounded-lg hover:bg-yellow-700 transition-colors text-xs sm:text-sm">⏸ Pausar</button>
-                        <button id="resetBtn" class="bg-gray-600 text-white px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors text-xs sm:text-sm">🔄 Reiniciar</button>
+<!--                        <button id="resetBtn" class="bg-gray-600 text-white px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors text-xs sm:text-sm">🔄 Reiniciar</button>-->
                     </div>
                 </div>
                 <div class="space-y-3">
@@ -355,11 +355,23 @@
 
         function updateParticleStats(avgSpeed) {
             document.getElementById('avgSpeed').textContent = avgSpeed.toFixed(2);
-            let energyLevel = currentParticleTemp < 20 ? 'Baja' : currentParticleTemp < 60 ? 'Media' : 'Alta';
-            let state = currentParticleTemp < 10 ? 'Sólido' : currentParticleTemp < 80 ? 'Líquido' : 'Gas';
-            let explanation = 'A temperatura media, las partículas se mueven con velocidad moderada.';
-            if (currentParticleTemp < 20) explanation = 'A baja temperatura, las partículas se mueven lentamente. En sólidos, vibran en posiciones fijas.';
-            else if (currentParticleTemp > 60) explanation = 'A alta temperatura, las partículas se mueven muy rápido. En gases, se mueven libremente.';
+            let energyLevel = currentParticleTemp <= 0 ? 'Muy Baja' : currentParticleTemp < 40 ? 'Baja' : currentParticleTemp < 80 ? 'Media' : 'Alta';
+
+            let state = currentParticleTemp <= 0 ? 'Sólido' : currentParticleTemp < 100 ? 'Líquido' : 'Gas';
+
+            // --- LÓGICA DE TEXTO MEJORADA ---
+            let explanation = ''; // Se inicia la variable vacía
+
+            if (currentParticleTemp <= 0) {
+                explanation = 'En el punto de congelación (0°C), las partículas se ordenan en una estructura fija y vibran con mínima energía (estado sólido).';
+            } else if (currentParticleTemp > 0 && currentParticleTemp < 20) {
+                explanation = 'Como líquido a baja temperatura, las partículas pueden deslizarse entre sí, pero su movimiento es todavía lento y limitado.';
+            } else if (currentParticleTemp >= 20 && currentParticleTemp < 100) {
+                explanation = 'A temperatura media, las partículas del líquido se mueven con mayor libertad y velocidad, chocando frecuentemente.';
+            } else { // Cubre temperaturas >= 100
+                explanation = 'Al alcanzar el punto de ebullición, las partículas tienen energía suficiente para escapar y moverse caóticamente como un gas.';
+            }
+
             document.getElementById('kineticEnergy').textContent = energyLevel;
             document.getElementById('matterState').textContent = state;
             document.getElementById('particleExplanation').textContent = explanation;
@@ -367,9 +379,9 @@
 
         document.getElementById('particleTempSlider').addEventListener('input', e => { currentParticleTemp = parseInt(e.target.value); document.getElementById('particleTemp').textContent = currentParticleTemp; });
         document.getElementById('pauseBtn').addEventListener('click', () => { isParticleSimPaused = !isParticleSimPaused; document.getElementById('pauseBtn').textContent = isParticleSimPaused ? '▶ Reanudar' : '⏸ Pausar'; });
-        document.getElementById('resetBtn').addEventListener('click', () => { isParticleSimPaused = false; document.getElementById('pauseBtn').textContent = '⏸ Pausar'; initParticleSimulation(); });
+        // document.getElementById('resetBtn').addEventListener('click', () => { isParticleSimPaused = false; document.getElementById('pauseBtn').textContent = '⏸ Pausar'; initParticleSimulation(); });
 
-        // --- CALCULADORA DE SENSACIÓN TÉRMICA ---
+        // --- CALCULADORA DE SENSACIÓN TÉRMICA (FUNCIÓN CORREGIDA) ---
         const thermalSliders = ['realTempSlider', 'humiditySlider', 'windSpeedSlider'];
         thermalSliders.forEach(id => document.getElementById(id).addEventListener('input', updateSensacionTermica));
 
@@ -377,14 +389,36 @@
             const temp = parseInt(document.getElementById('realTempSlider').value);
             const humidity = parseInt(document.getElementById('humiditySlider').value);
             const wind = parseInt(document.getElementById('windSpeedSlider').value);
+
             document.getElementById('realTemp').textContent = temp;
             document.getElementById('humidity').textContent = humidity;
             document.getElementById('windSpeed').textContent = wind;
-            let sensacion = temp + (temp > 25 ? (humidity - 50) * 0.1 : 0) - (wind * (temp < 25 ? 0.2 : 0.1));
+
+            let sensacion = temp;
+
+            // **FÓRMULA MEJORADA**
+            // 1. Efecto de calor húmedo (a partir de 20°C)
+            if (temp >= 20) {
+                sensacion += (humidity - 50) * 0.11;
+            }
+            // 2. Efecto de frío húmedo (por debajo de 10°C)
+            else if (temp < 10 && humidity > 60) {
+                sensacion -= (humidity - 60) * 0.05;
+            }
+
+            // 3. Efecto del viento (sin cambios)
+            sensacion -= (wind * 0.2);
+
             sensacion = Math.round(sensacion);
             document.getElementById('sensacionTermica').textContent = `${sensacion}°C`;
+
             let desc = 'Agradable';
-            if (sensacion < 10) desc = 'Muy frío'; else if (sensacion < 20) desc = 'Frío'; else if (sensacion >= 25 && sensacion < 30) desc = 'Caliente'; else if (sensacion >= 30) desc = 'Muy caliente';
+            if (sensacion < 5) desc = 'Muy frío';
+            else if (sensacion < 15) desc = 'Frío';
+            else if (sensacion < 25) desc = 'Agradable';
+            else if (sensacion < 30) desc = 'Caluroso';
+            else desc = 'Muy caluroso';
+
             document.getElementById('sensacionDesc').textContent = desc;
         }
 
