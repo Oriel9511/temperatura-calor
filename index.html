@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temperatura, Calor y Sensación Térmica - Secuencia Didáctica</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+        body { font-family: 'Poppins', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-hover { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .thermometer { background: linear-gradient(to top, #ff4444 0%, #ffaa00 50%, #4444ff 100%); }
+        .fire-animation { animation: flicker 1.5s infinite alternate; }
+        @keyframes flicker { 0% { transform: scale(1) rotate(-2deg); } 100% { transform: scale(1.1) rotate(2deg); } }
+        .ice-animation { animation: float 2s infinite ease-in-out; }
+        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+        /* Estilo para el botón de navegación activo */
+        .nav-btn.active {
+            background-color: #4338ca; /* Indigo-700 */
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+<header class="gradient-bg text-white py-6 sm:py-8">
+    <div class="container mx-auto px-4 text-center">
+        <h1 class="text-2xl sm:text-4xl font-bold mb-2">🌡 Temperatura y Calor</h1>
+        <p class="text-base sm:text-xl opacity-90">Secuencia Didáctica Interactiva</p>
+    </div>
+</header>
+
+<nav class="bg-white shadow-md sticky top-0 z-50">
+    <div class="container mx-auto px-4">
+        <div id="nav-container" class="flex flex-wrap justify-center items-center gap-2 py-3 sm:space-x-4 sm:py-4">
+            <button data-section="teoria" class="nav-btn px-4 py-2 rounded-full font-semibold hover:bg-indigo-200 transition-all text-sm sm:text-base sm:px-6 active">📚 Teoría</button>
+            <button data-section="juegos" class="nav-btn px-4 py-2 rounded-full font-semibold hover:bg-indigo-200 transition-all text-sm sm:text-base sm:px-6">🎮 Juegos</button>
+            <button data-section="cuestionarios" class="nav-btn px-4 py-2 rounded-full font-semibold hover:bg-indigo-200 transition-all text-sm sm:text-base sm:px-6">❓ Quiz</button>
+            <button data-section="desafios" class="nav-btn px-4 py-2 rounded-full font-semibold hover:bg-indigo-200 transition-all text-sm sm:text-base sm:px-6">🏆 Desafíos</button>
+        </div>
+    </div>
+</nav>
+
+<main class="container mx-auto px-4 py-8">
+    <section id="teoria" class="section">
+        <h2 class="text-2xl sm:text-3xl font-bold text-center mb-6 sm:mb-8 text-gray-800">📚 Conceptos Fundamentales</h2>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
+            <div class="bg-white rounded-xl p-4 sm:p-6 shadow-lg card-hover">
+                <div class="text-3xl sm:text-4xl mb-3 sm:mb-4 text-center">🌡</div>
+                <h3 class="text-lg sm:text-xl font-bold mb-2 sm:mb-3 text-blue-600">Temperatura</h3>
+                <p class="text-sm sm:text-base text-gray-700">Medida de la energía cinética promedio de las partículas de un cuerpo. Se mide en grados Celsius (°C), Fahrenheit (°F) o Kelvin (K).</p>
+            </div>
+            <div class="bg-white rounded-xl p-4 sm:p-6 shadow-lg card-hover">
+                <div class="text-3xl sm:text-4xl mb-3 sm:mb-4 text-center fire-animation">🔥</div>
+                <h3 class="text-lg sm:text-xl font-bold mb-2 sm:mb-3 text-red-600">Calor</h3>
+                <p class="text-sm sm:text-base text-gray-700">Energía que se transfiere entre cuerpos debido a una diferencia de temperatura. Siempre fluye del cuerpo más caliente al más frío.</p>
+            </div>
+            <div class="bg-white rounded-xl p-4 sm:p-6 shadow-lg card-hover sm:col-span-2 lg:col-span-1">
+                <div class="text-3xl sm:text-4xl mb-3 sm:mb-4 text-center">🌬</div>
+                <h3 class="text-lg sm:text-xl font-bold mb-2 sm:mb-3 text-green-600">Sensación Térmica</h3>
+                <p class="text-sm sm:text-base text-gray-700">Temperatura que percibe nuestro cuerpo, influenciada por factores como humedad, viento y radiación solar.</p>
+            </div>
+        </div>
+        <div class="bg-white rounded-xl p-4 sm:p-6 shadow-lg mb-6 sm:mb-8">
+            <h3 class="text-lg sm:text-2xl font-bold mb-4 text-center">🔬 Simulador de Temperatura</h3>
+            <div class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-8">
+                <div class="text-center order-2 sm:order-1">
+                    <div class="w-6 sm:w-8 h-20 sm:h-32 thermometer rounded-full mx-auto mb-2 sm:mb-4 relative">
+                        <div id="mercury" class="absolute bottom-0 w-full bg-red-500 rounded-full transition-all duration-500" style="height: 50%"></div>
+                    </div>
+                    <p class="font-semibold text-xs sm:text-base">Termómetro</p>
+                </div>
+                <div class="text-center order-1 sm:order-2 w-full sm:w-auto">
+                    <input type="range" id="tempSlider" min="-20" max="50" value="20" class="w-full sm:w-64 mb-3 sm:mb-4">
+                    <div class="text-xl sm:text-3xl font-bold" id="tempDisplay">20°C</div>
+                    <p id="tempDescription" class="text-gray-600 mt-2 text-xs sm:text-base">Temperatura ambiente</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="juegos" class="section hidden">
+        <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">🎮 Juegos Interactivos</h2>
+        <div class="bg-white rounded-xl p-4 sm:p-6 shadow-lg mb-8">
+            <h3 class="text-xl sm:text-2xl font-bold mb-4 text-center">🔬 Simulador de Energía Cinética</h3>
+            <p class="text-center mb-6 text-gray-600 text-sm sm:text-base">Observa cómo se mueven las partículas según la temperatura</p>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="text-center">
+                    <div class="bg-gradient-to-b from-blue-100 to-red-100 border-4 border-gray-300 rounded-lg mx-auto mb-4 relative overflow-hidden w-full max-w-sm" style="height: 200px;" id="particleContainer">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block font-semibold mb-2 text-sm">Temperatura: <span id="particleTemp">50</span>°C</label>
+                        <input type="range" id="particleTempSlider" min="0" max="100" value="50" class="w-full max-w-xs mx-auto">
+                    </div>
+                    <div class="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 mb-4">
+                        <button id="pauseBtn" class="bg-yellow-600 text-white px-3 py-2 rounded-lg hover:bg-yellow-700 transition-colors text-xs sm:text-sm">⏸ Pausar</button>
+                        <button id="resetBtn" class="bg-gray-600 text-white px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors text-xs sm:text-sm">🔄 Reiniciar</button>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <div class="bg-blue-50 p-3 rounded-lg">
+                        <h4 class="font-bold text-blue-700 mb-2 text-sm">📊 Datos en Tiempo Real</h4>
+                        <div class="space-y-1 text-xs sm:text-sm">
+                            <div>Velocidad Promedio: <span id="avgSpeed" class="font-semibold">2.5</span> px/frame</div>
+                            <div>Energía Cinética: <span id="kineticEnergy" class="font-semibold">Media</span></div>
+                            <div>Estado de la Materia: <span id="matterState" class="font-semibold">Líquido</span></div>
+                        </div>
+                    </div>
+                    <div class="bg-green-50 p-3 rounded-lg">
+                        <h4 class="font-bold text-green-700 mb-2 text-sm">🧠 ¿Qué está pasando?</h4>
+                        <p id="particleExplanation" class="text-xs sm:text-sm text-gray-700">A temperatura media, las partículas se mueven con velocidad moderada. La temperatura mide la energía cinética promedio de las partículas.</p>
+                    </div>
+                    <div class="bg-purple-50 p-3 rounded-lg">
+                        <h4 class="font-bold text-purple-700 mb-2 text-sm">🎯 Conceptos Clave</h4>
+                        <ul class="text-xs sm:text-sm text-gray-700 space-y-1 list-disc list-inside">
+                            <li>Mayor temperatura = partículas más rápidas</li>
+                            <li>Menor temperatura = partículas más lentas</li>
+                            <li>La temperatura mide energía cinética promedio</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-xl p-4 sm:p-6 shadow-lg">
+            <h3 class="text-xl sm:text-2xl font-bold mb-4 text-center">🌡 Calculadora de Sensación Térmica</h3>
+            <p class="text-center mb-6 text-gray-600 text-sm sm:text-base">Ajusta los parámetros y observa cómo cambia</p>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block font-semibold mb-2 text-sm sm:text-base">Temperatura Real: <span id="realTemp">20</span>°C</label>
+                        <input type="range" id="realTempSlider" min="0" max="40" value="20" class="w-full mb-4">
+                    </div>
+                    <div>
+                        <label class="block font-semibold mb-2 text-sm sm:text-base">Humedad: <span id="humidity">50</span>%</label>
+                        <input type="range" id="humiditySlider" min="0" max="100" value="50" class="w-full mb-4">
+                    </div>
+                    <div>
+                        <label class="block font-semibold mb-2 text-sm sm:text-base">Velocidad del Viento: <span id="windSpeed">10</span> km/h</label>
+                        <input type="range" id="windSpeedSlider" min="0" max="50" value="10" class="w-full">
+                    </div>
+                </div>
+                <div class="text-center">
+                    <div class="bg-gradient-to-r from-blue-400 to-red-400 p-4 sm:p-6 rounded-xl text-white">
+                        <h4 class="text-lg sm:text-xl font-bold mb-2">Sensación Térmica</h4>
+                        <div class="text-3xl sm:text-4xl font-bold" id="sensacionTermica">20°C</div>
+                        <p id="sensacionDesc" class="mt-2 text-sm sm:text-base">Agradable</p>
+                    </div>
+                    <div class="mt-4 text-xs sm:text-sm text-gray-600 px-2" id="sensacionExplanation">La sensación térmica considera temperatura, humedad y viento</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="cuestionarios" class="section hidden">
+        <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">❓ Cuestionarios</h2>
+        <div class="bg-white rounded-xl p-4 sm:p-6 shadow-lg">
+            <div id="quiz-container">
+                <div class="mb-6">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 space-y-2 sm:space-y-0">
+                        <h3 class="text-lg sm:text-xl font-bold">Pregunta <span id="questionNumber">1</span> de <span id="totalQuestions">5</span></h3>
+                        <div class="text-sm text-gray-600">Puntuación: <span id="score">0</span></div>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2 mb-4">
+                        <div id="progressBar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 20%"></div>
+                    </div>
+                </div>
+                <div id="question" class="text-base sm:text-lg mb-6 font-semibold"></div>
+                <div id="options" class="space-y-3 mb-6"></div>
+                <div class="flex flex-col sm:flex-row justify-between space-y-2 sm:space-y-0">
+                    <button id="prevBtn" class="bg-gray-500 text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-gray-600 transition-colors text-sm sm:text-base disabled:opacity-50" disabled>Anterior</button>
+                    <button id="nextBtn" class="bg-blue-600 text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm sm:text-base">Siguiente</button>
+                </div>
+            </div>
+            <div id="quiz-results" class="hidden text-center">
+                <h3 class="text-xl sm:text-2xl font-bold mb-4">¡Cuestionario Completado! 🎉</h3>
+                <div class="text-4xl sm:text-6xl mb-4" id="finalScore"></div>
+                <p class="text-base sm:text-lg mb-6 px-4" id="finalMessage"></p>
+                <button id="restartQuizBtn" class="bg-green-600 text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm sm:text-base">Reintentar</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="desafios" class="section hidden">
+        <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">🏆 Desafíos</h2>
+        <div class="bg-white rounded-xl p-4 sm:p-6 shadow-lg mb-8">
+            <h3 class="text-xl sm:text-2xl font-bold mb-4 text-center">🔄 Maestro de Conversiones</h3>
+            <p class="text-center mb-6 text-gray-600 text-sm sm:text-base">Convierte temperaturas entre diferentes escalas</p>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block font-semibold mb-2 text-sm sm:text-base">Temperatura Original:</label>
+                        <input type="number" id="originalTemp" class="w-full p-3 border rounded-lg text-sm sm:text-base" placeholder="Ingresa la temperatura">
+                    </div>
+                    <div>
+                        <select id="originalScale" class="w-full p-3 border rounded-lg text-sm sm:text-base">
+                            <option value="celsius">Celsius (°C)</option>
+                            <option value="fahrenheit">Fahrenheit (°F)</option>
+                            <option value="kelvin">Kelvin (K)</option>
+                        </select>
+                    </div>
+                    <button id="convertBtn" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors text-sm sm:text-base">Convertir</button>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-4 text-sm sm:text-base">Resultados:</h4>
+                    <div class="space-y-3">
+                        <div class="bg-blue-50 p-3 rounded-lg">
+                            <span class="font-semibold text-sm sm:text-base">Celsius:</span> <span id="resultCelsius" class="text-sm sm:text-base">-</span>°C
+                        </div>
+                        <div class="bg-red-50 p-3 rounded-lg">
+                            <span class="font-semibold text-sm sm:text-base">Fahrenheit:</span> <span id="resultFahrenheit" class="text-sm sm:text-base">-</span>°F
+                        </div>
+                        <div class="bg-purple-50 p-3 rounded-lg">
+                            <span class="font-semibold text-sm sm:text-base">Kelvin:</span> <span id="resultKelvin" class="text-sm sm:text-base">-</span>K
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-xl p-4 sm:p-6 shadow-lg">
+            <h3 class="text-xl sm:text-2xl font-bold mb-4 text-center">🧪 Laboratorio Virtual</h3>
+            <p class="text-center mb-6 text-gray-600 text-sm sm:text-base px-2">Experimenta y observa la transferencia de calor</p>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                <div class="text-center">
+                    <h4 class="font-bold mb-3 text-sm sm:text-base">Material A</h4>
+                    <select id="materialA" class="w-full p-2 border rounded mb-2 text-xs sm:text-sm">
+                        <option value="metal">Metal (alta conductividad)</option>
+                        <option value="madera">Madera (baja conductividad)</option>
+                        <option value="plastico">Plástico (muy baja conductividad)</option>
+                    </select>
+                    <div class="bg-gray-200 p-3 sm:p-4 rounded">
+                        <div class="text-xl sm:text-2xl mb-2">🔥</div>
+                        <div class="text-sm sm:text-base">Temp: <span id="tempA">100</span>°C</div>
+                    </div>
+                </div>
+                <div class="text-center flex items-center justify-center order-last sm:order-none">
+                    <div class="text-2xl sm:text-4xl transform rotate-90 sm:rotate-0">➡</div>
+                </div>
+                <div class="text-center">
+                    <h4 class="font-bold mb-3 text-sm sm:text-base">Material B</h4>
+                    <select id="materialB" class="w-full p-2 border rounded mb-2 text-xs sm:text-sm">
+                        <option value="metal">Metal (alta conductividad)</option>
+                        <option value="madera" selected>Madera (baja conductividad)</option>
+                        <option value="plastico">Plástico (muy baja conductividad)</option>
+                    </select>
+                    <div class="bg-gray-200 p-3 sm:p-4 rounded">
+                        <div class="text-xl sm:text-2xl mb-2 ice-animation">❄</div>
+                        <div class="text-sm sm:text-base">Temp: <span id="tempB">20</span>°C</div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center space-y-2 sm:space-y-0">
+                <button id="startExperimentBtn" class="bg-green-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-green-700 transition-colors text-sm sm:text-base w-full sm:w-auto sm:mr-2">Iniciar Experimento</button>
+                <button id="resetExperimentBtn" class="bg-gray-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-gray-700 transition-colors text-sm sm:text-base w-full sm:w-auto">Reiniciar</button>
+            </div>
+            <div id="experimentResult" class="mt-6 p-4 bg-yellow-50 rounded-lg hidden">
+                <h5 class="font-bold mb-2 text-sm sm:text-base">Resultado del Experimento:</h5>
+                <p id="experimentText" class="text-sm sm:text-base"></p>
+            </div>
+        </div>
+    </section>
+</main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- VARIABLES GLOBALES Y SELECTORES ---
+        let currentQuestion = 0;
+        let score = 0;
+        let userAnswers = {}; // Guardar respuestas para navegación
+        let experimentInterval = null;
+        let particleAnimationId = null;
+        let isParticleSimPaused = false;
+        let isParticleSimInitialized = false;
+
+        // --- LÓGICA DE NAVEGACIÓN ---
+        const navContainer = document.getElementById('nav-container');
+        const sections = document.querySelectorAll('.section');
+        const navButtons = document.querySelectorAll('.nav-btn');
+
+        navContainer.addEventListener('click', (event) => {
+            const targetButton = event.target.closest('.nav-btn');
+            if (!targetButton) return;
+
+            const sectionId = targetButton.dataset.section;
+            showSection(sectionId);
+        });
+
+        function showSection(sectionId) {
+            // Ocultar todas las secciones
+            sections.forEach(s => s.classList.add('hidden'));
+            document.getElementById(sectionId).classList.remove('hidden');
+
+            // Actualizar estado activo de los botones
+            navButtons.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.section === sectionId);
+            });
+
+            // Inicializar el simulador de partículas solo cuando se muestra su sección por primera vez
+            if (sectionId === 'juegos' && !isParticleSimInitialized) {
+                initParticleSimulation();
+                isParticleSimInitialized = true;
+            }
+        }
+
+
+        // --- SIMULADOR DE TEMPERATURA ---
+        const tempSlider = document.getElementById('tempSlider');
+        tempSlider.addEventListener('input', function() {
+            const temp = parseInt(this.value);
+            document.getElementById('tempDisplay').textContent = `${temp}°C`;
+
+            const mercury = document.getElementById('mercury');
+            const percentage = ((temp + 20) / 70) * 100;
+            mercury.style.height = `${Math.max(5, Math.min(95, percentage))}%`;
+
+            let description = 'Templado 🌤';
+            if (temp < 0) description = 'Muy frío ❄️';
+            else if (temp < 10) description = 'Frío 🧊';
+            else if (temp >= 10 && temp < 20) description = 'Fresco 🍃';
+            else if (temp >= 20 && temp < 30) description = 'Agradable ☀️';
+            else if (temp >= 30 && temp < 40) description = 'Caliente 🔥';
+            else description = 'Muy caliente 🥵';
+            document.getElementById('tempDescription').textContent = description;
+        });
+
+        // --- SIMULADOR DE PARTÍCULAS ---
+        let particles = [];
+        let currentParticleTemp = 50;
+        const particleContainer = document.getElementById('particleContainer');
+
+        class Particle {
+            constructor(x, y, temp) { this.x = x; this.y = y; this.vx = (Math.random() - 0.5) * (temp / 10); this.vy = (Math.random() - 0.5) * (temp / 10); this.radius = 3 + Math.random(); this.updateColor(temp); }
+            updateColor(temp) { this.color = temp < 20 ? '#3B82F6' : temp < 60 ? '#10B981' : '#EF4444'; }
+            update(w, h, temp) { const speedFactor = temp / 50; this.vx += (Math.random() - 0.5) * 0.1 * speedFactor; this.vy += (Math.random() - 0.5) * 0.1 * speedFactor; const maxSpeed = temp / 10; this.vx = Math.max(-maxSpeed, Math.min(maxSpeed, this.vx)); this.vy = Math.max(-maxSpeed, Math.min(maxSpeed, this.vy)); this.x += this.vx; this.y += this.vy; if (this.x <= this.radius || this.x >= w - this.radius) { this.vx *= -0.8; this.x = Math.max(this.radius, Math.min(w - this.radius, this.x)); } if (this.y <= this.radius || this.y >= h - this.radius) { this.vy *= -0.8; this.y = Math.max(this.radius, Math.min(h - this.radius, this.y)); } this.updateColor(temp); }
+            draw(ctx) { ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fillStyle = this.color; ctx.fill(); }
+        }
+
+        function initParticleSimulation() {
+            if (!particleContainer) return;
+            const canvas = document.createElement('canvas');
+            canvas.width = particleContainer.offsetWidth;
+            canvas.height = particleContainer.offsetHeight;
+            particleContainer.innerHTML = '';
+            particleContainer.appendChild(canvas);
+            const ctx = canvas.getContext('2d');
+            particles = Array.from({ length: 30 }, () => new Particle(Math.random() * canvas.width, Math.random() * canvas.height, currentParticleTemp));
+
+            function animate() {
+                if (!isParticleSimPaused) {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    let totalSpeed = 0;
+                    particles.forEach(p => { p.update(canvas.width, canvas.height, currentParticleTemp); p.draw(ctx); totalSpeed += Math.sqrt(p.vx ** 2 + p.vy ** 2); });
+                    updateParticleStats(totalSpeed / particles.length);
+                }
+                particleAnimationId = requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        function updateParticleStats(avgSpeed) {
+            document.getElementById('avgSpeed').textContent = avgSpeed.toFixed(2);
+            let energyLevel = currentParticleTemp < 20 ? 'Baja' : currentParticleTemp < 60 ? 'Media' : 'Alta';
+            let state = currentParticleTemp < 10 ? 'Sólido' : currentParticleTemp < 80 ? 'Líquido' : 'Gas';
+            let explanation = 'A temperatura media, las partículas se mueven con velocidad moderada.';
+            if (currentParticleTemp < 20) explanation = 'A baja temperatura, las partículas se mueven lentamente. En sólidos, vibran en posiciones fijas.';
+            else if (currentParticleTemp > 60) explanation = 'A alta temperatura, las partículas se mueven muy rápido. En gases, se mueven libremente.';
+            document.getElementById('kineticEnergy').textContent = energyLevel;
+            document.getElementById('matterState').textContent = state;
+            document.getElementById('particleExplanation').textContent = explanation;
+        }
+
+        document.getElementById('particleTempSlider').addEventListener('input', e => { currentParticleTemp = parseInt(e.target.value); document.getElementById('particleTemp').textContent = currentParticleTemp; });
+        document.getElementById('pauseBtn').addEventListener('click', () => { isParticleSimPaused = !isParticleSimPaused; document.getElementById('pauseBtn').textContent = isParticleSimPaused ? '▶ Reanudar' : '⏸ Pausar'; });
+        document.getElementById('resetBtn').addEventListener('click', () => { isParticleSimPaused = false; document.getElementById('pauseBtn').textContent = '⏸ Pausar'; initParticleSimulation(); });
+
+        // --- CALCULADORA DE SENSACIÓN TÉRMICA ---
+        const thermalSliders = ['realTempSlider', 'humiditySlider', 'windSpeedSlider'];
+        thermalSliders.forEach(id => document.getElementById(id).addEventListener('input', updateSensacionTermica));
+
+        function updateSensacionTermica() {
+            const temp = parseInt(document.getElementById('realTempSlider').value);
+            const humidity = parseInt(document.getElementById('humiditySlider').value);
+            const wind = parseInt(document.getElementById('windSpeedSlider').value);
+            document.getElementById('realTemp').textContent = temp;
+            document.getElementById('humidity').textContent = humidity;
+            document.getElementById('windSpeed').textContent = wind;
+            let sensacion = temp + (temp > 25 ? (humidity - 50) * 0.1 : 0) - (wind * (temp < 25 ? 0.2 : 0.1));
+            sensacion = Math.round(sensacion);
+            document.getElementById('sensacionTermica').textContent = `${sensacion}°C`;
+            let desc = 'Agradable';
+            if (sensacion < 10) desc = 'Muy frío'; else if (sensacion < 20) desc = 'Frío'; else if (sensacion >= 25 && sensacion < 30) desc = 'Caliente'; else if (sensacion >= 30) desc = 'Muy caliente';
+            document.getElementById('sensacionDesc').textContent = desc;
+        }
+
+        // --- CUESTIONARIO ---
+        const questions = [
+            { q: "¿Qué es la temperatura?", o: ["La cantidad de calor en un objeto", "La medida de la energía cinética promedio de las partículas", "La sensación que percibimos al tocar algo", "La velocidad de las moléculas más rápidas"], c: 1 },
+            { q: "¿En qué dirección fluye siempre el calor?", o: ["Del cuerpo más frío al más caliente", "Del cuerpo más caliente al más frío", "En ambas direcciones por igual", "Depende del material"], c: 1 },
+            { q: "¿Qué factores afectan la sensación térmica?", o: ["Solo la temperatura", "Temperatura y humedad", "Temperatura, humedad, viento y radiación solar", "Solo el viento"], c: 2 },
+            { q: "¿Cuál es el punto de congelación del agua en Kelvin?", o: ["0 K", "273.15 K", "100 K", "373.15 K"], c: 1 },
+            { q: "¿Qué material conduce mejor el calor?", o: ["Madera", "Plástico", "Metal", "Aire"], c: 2 }
+        ];
+
+        function loadQuestion() {
+            const q = questions[currentQuestion];
+            document.getElementById('questionNumber').textContent = currentQuestion + 1;
+            document.getElementById('totalQuestions').textContent = questions.length;
+            document.getElementById('question').textContent = q.q;
+            const optionsDiv = document.getElementById('options');
+            optionsDiv.innerHTML = '';
+            q.o.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = `w-full p-3 text-left border rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base ${userAnswers[currentQuestion] === index ? 'bg-blue-100 border-blue-500' : ''}`;
+                button.textContent = option;
+                button.onclick = () => { userAnswers[currentQuestion] = index; loadQuestion(); };
+                optionsDiv.appendChild(button);
+            });
+            document.getElementById('progressBar').style.width = `${((currentQuestion + 1) / questions.length) * 100}%`;
+            document.getElementById('prevBtn').disabled = currentQuestion === 0;
+            document.getElementById('nextBtn').textContent = currentQuestion === questions.length - 1 ? 'Finalizar' : 'Siguiente';
+        }
+
+        function calculateScore() {
+            score = 0;
+            for (let i = 0; i < questions.length; i++) {
+                if (userAnswers[i] === questions[i].c) {
+                    score++;
+                }
+            }
+            document.getElementById('score').textContent = score;
+        }
+
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(); } else { calculateScore(); showQuizResults(); }
+        });
+        document.getElementById('prevBtn').addEventListener('click', () => { if (currentQuestion > 0) { currentQuestion--; loadQuestion(); } });
+
+        function showQuizResults() {
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.getElementById('quiz-results').classList.remove('hidden');
+            const percentage = Math.round((score / questions.length) * 100);
+            document.getElementById('finalScore').textContent = `${score}/${questions.length} (${percentage}%)`; // CORREGIDO
+            let message = 'Necesitas repasar más el tema 💪';
+            if (percentage >= 90) message = '¡Excelente! Dominas el tema perfectamente 🌟';
+            else if (percentage >= 70) message = '¡Muy bien! Tienes un buen conocimiento 👏';
+            else if (percentage >= 50) message = 'Bien, pero puedes mejorar 📚';
+            document.getElementById('finalMessage').textContent = message;
+        }
+
+        document.getElementById('restartQuizBtn').addEventListener('click', () => {
+            currentQuestion = 0; score = 0; userAnswers = {};
+            document.getElementById('score').textContent = '0';
+            document.getElementById('quiz-container').classList.remove('hidden');
+            document.getElementById('quiz-results').classList.add('hidden');
+            loadQuestion();
+        });
+
+        // --- DESAFÍO: CONVERSIÓN DE TEMPERATURAS ---
+        document.getElementById('convertBtn').addEventListener('click', () => {
+            const temp = parseFloat(document.getElementById('originalTemp').value);
+            if (isNaN(temp)) { alert('Por favor ingresa un número válido'); return; }
+            const scale = document.getElementById('originalScale').value;
+            let c, f, k;
+            if (scale === 'celsius') { c = temp; f = (c * 9/5) + 32; k = c + 273.15; }
+            else if (scale === 'fahrenheit') { f = temp; c = (f - 32) * 5/9; k = c + 273.15; }
+            else { k = temp; c = k - 273.15; f = (c * 9/5) + 32; }
+            document.getElementById('resultCelsius').textContent = c.toFixed(1);
+            document.getElementById('resultFahrenheit').textContent = f.toFixed(1);
+            document.getElementById('resultKelvin').textContent = k.toFixed(1);
+        });
+
+        // --- DESAFÍO: LABORATORIO VIRTUAL ---
+        function startExperiment() {
+            if (experimentInterval) return;
+            const conductivities = { metal: 0.8, madera: 0.3, plastico: 0.1 };
+            const avgCond = (conductivities[document.getElementById('materialA').value] + conductivities[document.getElementById('materialB').value]) / 2;
+            let tempA = 100, tempB = 20;
+            experimentInterval = setInterval(() => {
+                const diff = (tempA - tempB) * avgCond * 0.1;
+                tempA -= diff; tempB += diff;
+                document.getElementById('tempA').textContent = Math.round(tempA);
+                document.getElementById('tempB').textContent = Math.round(tempB);
+                if (Math.abs(tempA - tempB) < 1) {
+                    clearInterval(experimentInterval);
+                    experimentInterval = null;
+                    showExperimentResult(avgCond);
+                }
+            }, 100);
+        }
+        function showExperimentResult(conductivity) {
+            const resultDiv = document.getElementById('experimentResult');
+            const textP = document.getElementById('experimentText');
+            let message = `El experimento muestra que `;
+            if (conductivity > 0.6) message += `ambos materiales tienen alta conductividad, por lo que el equilibrio térmico se alcanzó rápidamente.`; // CORREGIDO
+            else if (conductivity > 0.3) message += `los materiales tienen conductividad moderada; el calor se transfiere a velocidad media.`; // CORREGIDO
+            else message += `los materiales tienen baja conductividad, la transferencia de calor fue lenta.`; // CORREGIDO
+            textP.textContent = message;
+            resultDiv.classList.remove('hidden');
+        }
+        function resetExperiment() {
+            clearInterval(experimentInterval);
+            experimentInterval = null;
+            document.getElementById('tempA').textContent = '100';
+            document.getElementById('tempB').textContent = '20';
+            document.getElementById('experimentResult').classList.add('hidden');
+        }
+        document.getElementById('startExperimentBtn').addEventListener('click', startExperiment);
+        document.getElementById('resetExperimentBtn').addEventListener('click', resetExperiment);
+
+        // --- INICIALIZACIÓN AL CARGAR LA PÁGINA ---
+        loadQuestion();
+        updateSensacionTermica();
+    });
+</script>
+</body>
+</html>
