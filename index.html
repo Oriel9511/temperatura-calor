@@ -171,7 +171,7 @@
                 <div id="question" class="text-base sm:text-lg mb-6 font-semibold"></div>
                 <div id="options" class="space-y-3 mb-6"></div>
                 <div class="flex flex-col sm:flex-row justify-between space-y-2 sm:space-y-0">
-                    <button id="prevBtn" class="bg-gray-500 text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-gray-600 transition-colors text-sm sm:text-base disabled:opacity-50" disabled>Anterior</button>
+                    <button id="prevBtn" class="bg-gray-500 text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-gray-600 transition-colors text-sm sm:text-base disabled:opacity-50" disabled hidden>Anterior</button>
                     <button id="nextBtn" class="bg-blue-600 text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm sm:text-base">Siguiente</button>
                 </div>
             </div>
@@ -299,14 +299,96 @@
             }
         }
 
-        // --- (El resto del código de los simuladores y desafíos no cambia) ---
+        // --- SIMULADOR DE TEMPERATURA ---
         const tempSlider = document.getElementById('tempSlider');
-        tempSlider.addEventListener('input', function() { /* ...código sin cambios... */ });
+        tempSlider.addEventListener('input', function() {
+            const temp = parseInt(this.value);
+            document.getElementById('tempDisplay').textContent = `${temp}°C`;
 
-        // El simulador de partículas y la calculadora de sensación térmica no necesitan cambios
-        // ... (código omitido por brevedad, es el mismo que en la respuesta anterior)
+            const mercury = document.getElementById('mercury');
+            const percentage = ((temp + 20) / 70) * 100;
+            mercury.style.height = `${Math.max(5, Math.min(95, percentage))}%`;
 
-        // --- CUESTIONARIO (CON LÓGICA CORREGIDA) ---
+            let description = 'Templado 🌤';
+            if (temp < 0) description = 'Muy frío ❄️';
+            else if (temp < 10) description = 'Frío 🧊';
+            else if (temp >= 10 && temp < 20) description = 'Fresco 🍃';
+            else if (temp >= 20 && temp < 30) description = 'Agradable ☀️';
+            else if (temp >= 30 && temp < 40) description = 'Caliente 🔥';
+            else description = 'Muy caliente 🥵';
+            document.getElementById('tempDescription').textContent = description;
+        });
+
+        // --- SIMULADOR DE PARTÍCULAS ---
+        let particles = [];
+        let currentParticleTemp = 50;
+        const particleContainer = document.getElementById('particleContainer');
+
+        class Particle {
+            constructor(x, y, temp) { this.x = x; this.y = y; this.vx = (Math.random() - 0.5) * (temp / 10); this.vy = (Math.random() - 0.5) * (temp / 10); this.radius = 3 + Math.random(); this.updateColor(temp); }
+            updateColor(temp) { this.color = temp < 20 ? '#3B82F6' : temp < 60 ? '#10B981' : '#EF4444'; }
+            update(w, h, temp) { const speedFactor = temp / 50; this.vx += (Math.random() - 0.5) * 0.1 * speedFactor; this.vy += (Math.random() - 0.5) * 0.1 * speedFactor; const maxSpeed = temp / 10; this.vx = Math.max(-maxSpeed, Math.min(maxSpeed, this.vx)); this.vy = Math.max(-maxSpeed, Math.min(maxSpeed, this.vy)); this.x += this.vx; this.y += this.vy; if (this.x <= this.radius || this.x >= w - this.radius) { this.vx *= -0.8; this.x = Math.max(this.radius, Math.min(w - this.radius, this.x)); } if (this.y <= this.radius || this.y >= h - this.radius) { this.vy *= -0.8; this.y = Math.max(this.radius, Math.min(h - this.radius, this.y)); } this.updateColor(temp); }
+            draw(ctx) { ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fillStyle = this.color; ctx.fill(); }
+        }
+
+        function initParticleSimulation() {
+            if (!particleContainer) return;
+            const canvas = document.createElement('canvas');
+            canvas.width = particleContainer.offsetWidth;
+            canvas.height = particleContainer.offsetHeight;
+            particleContainer.innerHTML = '';
+            particleContainer.appendChild(canvas);
+            const ctx = canvas.getContext('2d');
+            particles = Array.from({ length: 30 }, () => new Particle(Math.random() * canvas.width, Math.random() * canvas.height, currentParticleTemp));
+
+            function animate() {
+                if (!isParticleSimPaused) {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    let totalSpeed = 0;
+                    particles.forEach(p => { p.update(canvas.width, canvas.height, currentParticleTemp); p.draw(ctx); totalSpeed += Math.sqrt(p.vx ** 2 + p.vy ** 2); });
+                    updateParticleStats(totalSpeed / particles.length);
+                }
+                particleAnimationId = requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        function updateParticleStats(avgSpeed) {
+            document.getElementById('avgSpeed').textContent = avgSpeed.toFixed(2);
+            let energyLevel = currentParticleTemp < 20 ? 'Baja' : currentParticleTemp < 60 ? 'Media' : 'Alta';
+            let state = currentParticleTemp < 10 ? 'Sólido' : currentParticleTemp < 80 ? 'Líquido' : 'Gas';
+            let explanation = 'A temperatura media, las partículas se mueven con velocidad moderada.';
+            if (currentParticleTemp < 20) explanation = 'A baja temperatura, las partículas se mueven lentamente. En sólidos, vibran en posiciones fijas.';
+            else if (currentParticleTemp > 60) explanation = 'A alta temperatura, las partículas se mueven muy rápido. En gases, se mueven libremente.';
+            document.getElementById('kineticEnergy').textContent = energyLevel;
+            document.getElementById('matterState').textContent = state;
+            document.getElementById('particleExplanation').textContent = explanation;
+        }
+
+        document.getElementById('particleTempSlider').addEventListener('input', e => { currentParticleTemp = parseInt(e.target.value); document.getElementById('particleTemp').textContent = currentParticleTemp; });
+        document.getElementById('pauseBtn').addEventListener('click', () => { isParticleSimPaused = !isParticleSimPaused; document.getElementById('pauseBtn').textContent = isParticleSimPaused ? '▶ Reanudar' : '⏸ Pausar'; });
+        document.getElementById('resetBtn').addEventListener('click', () => { isParticleSimPaused = false; document.getElementById('pauseBtn').textContent = '⏸ Pausar'; initParticleSimulation(); });
+
+        // --- CALCULADORA DE SENSACIÓN TÉRMICA ---
+        const thermalSliders = ['realTempSlider', 'humiditySlider', 'windSpeedSlider'];
+        thermalSliders.forEach(id => document.getElementById(id).addEventListener('input', updateSensacionTermica));
+
+        function updateSensacionTermica() {
+            const temp = parseInt(document.getElementById('realTempSlider').value);
+            const humidity = parseInt(document.getElementById('humiditySlider').value);
+            const wind = parseInt(document.getElementById('windSpeedSlider').value);
+            document.getElementById('realTemp').textContent = temp;
+            document.getElementById('humidity').textContent = humidity;
+            document.getElementById('windSpeed').textContent = wind;
+            let sensacion = temp + (temp > 25 ? (humidity - 50) * 0.1 : 0) - (wind * (temp < 25 ? 0.2 : 0.1));
+            sensacion = Math.round(sensacion);
+            document.getElementById('sensacionTermica').textContent = `${sensacion}°C`;
+            let desc = 'Agradable';
+            if (sensacion < 10) desc = 'Muy frío'; else if (sensacion < 20) desc = 'Frío'; else if (sensacion >= 25 && sensacion < 30) desc = 'Caliente'; else if (sensacion >= 30) desc = 'Muy caliente';
+            document.getElementById('sensacionDesc').textContent = desc;
+        }
+
+        // --- CUESTIONARIO ---
         const questions = [
             { q: "¿Qué es la temperatura?", o: ["La cantidad de calor en un objeto", "La medida de la energía cinética promedio de las partículas", "La sensación que percibimos al tocar algo", "La velocidad de las moléculas más rápidas"], c: 1 },
             { q: "¿En qué dirección fluye siempre el calor?", o: ["Del cuerpo más frío al más caliente", "Del cuerpo más caliente al más frío", "En ambas direcciones por igual", "Depende del material"], c: 1 },
@@ -327,20 +409,13 @@
                 const button = document.createElement('button');
                 button.className = `w-full p-3 text-left border rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base`;
 
-                // Si ya hay una respuesta guardada para esta pregunta, la marcamos
                 if (userAnswers[currentQuestion] === index) {
                     button.classList.add('bg-blue-100', 'border-blue-500');
                 }
 
                 button.textContent = option;
                 button.onclick = () => {
-                    // Guardar la respuesta del usuario
                     userAnswers[currentQuestion] = index;
-
-                    // **CAMBIO CLAVE: Calcular el puntaje inmediatamente**
-                    calculateScore();
-
-                    // Actualizar visualmente los botones sin recargar toda la pregunta
                     const allButtons = optionsDiv.querySelectorAll('button');
                     allButtons.forEach(btn => btn.classList.remove('bg-blue-100', 'border-blue-500'));
                     button.classList.add('bg-blue-100', 'border-blue-500');
@@ -349,37 +424,25 @@
             });
 
             document.getElementById('progressBar').style.width = `${((currentQuestion + 1) / questions.length) * 100}%`;
-            document.getElementById('prevBtn').disabled = currentQuestion === 0;
             document.getElementById('nextBtn').textContent = currentQuestion === questions.length - 1 ? 'Finalizar' : 'Siguiente';
         }
 
-        // Esta función ahora se usa para calcular el puntaje en tiempo real
-        function calculateScore() {
-            score = 0;
-            // Recorremos todas las preguntas para contar las respuestas correctas
-            for (let i = 0; i < questions.length; i++) {
-                if (userAnswers[i] === questions[i].c) {
-                    score++;
-                }
-            }
-            // Actualizamos el contador de puntaje en la pantalla
-            document.getElementById('score').textContent = score;
-        }
-
         document.getElementById('nextBtn').addEventListener('click', () => {
+            if (userAnswers[currentQuestion] == null) {
+                alert('Por favor, selecciona una respuesta para continuar.');
+                return;
+            }
+
+            if (userAnswers[currentQuestion] === questions[currentQuestion].c) {
+                score++;
+                document.getElementById('score').textContent = score;
+            }
+
             if (currentQuestion < questions.length - 1) {
                 currentQuestion++;
                 loadQuestion();
             } else {
-                // Al finalizar, el puntaje ya está calculado
                 showQuizResults();
-            }
-        });
-
-        document.getElementById('prevBtn').addEventListener('click', () => {
-            if (currentQuestion > 0) {
-                currentQuestion--;
-                loadQuestion();
             }
         });
 
@@ -403,11 +466,61 @@
             loadQuestion();
         });
 
-        // --- (El resto del código de los desafíos no cambia) ---
+        // --- DESAFÍO: CONVERSIÓN DE TEMPERATURAS ---
+        document.getElementById('convertBtn').addEventListener('click', () => {
+            const temp = parseFloat(document.getElementById('originalTemp').value);
+            if (isNaN(temp)) { alert('Por favor ingresa un número válido'); return; }
+            const scale = document.getElementById('originalScale').value;
+            let c, f, k;
+            if (scale === 'celsius') { c = temp; f = (c * 9/5) + 32; k = c + 273.15; }
+            else if (scale === 'fahrenheit') { f = temp; c = (f - 32) * 5/9; k = c + 273.15; }
+            else { k = temp; c = k - 273.15; f = (c * 9/5) + 32; }
+            document.getElementById('resultCelsius').textContent = c.toFixed(1);
+            document.getElementById('resultFahrenheit').textContent = f.toFixed(1);
+            document.getElementById('resultKelvin').textContent = k.toFixed(1);
+        });
+
+        // --- DESAFÍO: LABORATORIO VIRTUAL ---
+        function startExperiment() {
+            if (experimentInterval) return;
+            const conductivities = { metal: 0.8, madera: 0.3, plastico: 0.1 };
+            const avgCond = (conductivities[document.getElementById('materialA').value] + conductivities[document.getElementById('materialB').value]) / 2;
+            let tempA = 100, tempB = 20;
+            experimentInterval = setInterval(() => {
+                const diff = (tempA - tempB) * avgCond * 0.1;
+                tempA -= diff; tempB += diff;
+                document.getElementById('tempA').textContent = Math.round(tempA);
+                document.getElementById('tempB').textContent = Math.round(tempB);
+                if (Math.abs(tempA - tempB) < 1) {
+                    clearInterval(experimentInterval);
+                    experimentInterval = null;
+                    showExperimentResult(avgCond);
+                }
+            }, 100);
+        }
+        function showExperimentResult(conductivity) {
+            const resultDiv = document.getElementById('experimentResult');
+            const textP = document.getElementById('experimentText');
+            let message = `El experimento muestra que `;
+            if (conductivity > 0.6) message += `ambos materiales tienen alta conductividad, por lo que el equilibrio térmico se alcanzó rápidamente.`;
+            else if (conductivity > 0.3) message += `los materiales tienen conductividad moderada; el calor se transfiere a velocidad media.`;
+            else message += `los materiales tienen baja conductividad, la transferencia de calor fue lenta.`;
+            textP.textContent = message;
+            resultDiv.classList.remove('hidden');
+        }
+        function resetExperiment() {
+            clearInterval(experimentInterval);
+            experimentInterval = null;
+            document.getElementById('tempA').textContent = '100';
+            document.getElementById('tempB').textContent = '20';
+            document.getElementById('experimentResult').classList.add('hidden');
+        }
+        document.getElementById('startExperimentBtn').addEventListener('click', startExperiment);
+        document.getElementById('resetExperimentBtn').addEventListener('click', resetExperiment);
 
         // --- INICIALIZACIÓN AL CARGAR LA PÁGINA ---
         loadQuestion();
-        // updateSensacionTermica(); // No es necesario aquí si los sliders ya tienen valores iniciales
+        updateSensacionTermica();
     });
 </script>
 </body>
